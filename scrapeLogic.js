@@ -15,14 +15,14 @@ const scrapeLogic = async (res) => {
                 : puppeteer.executablePath(),
     });
     try {
-        let page = await browser.newPage()
-        await page.goto("https://www.linkedin.com/in/rashadasadli/")
-        // await page.screenshot({ path: "linkdinPage.png", fullPage: true })
-
-        // const names = []
-        // await fs.writeFile(test.tsx,names.join("\r\n"))
+        let page = await browser.newPage();
+        await page.goto("https://www.linkedin.com/in/rashadasadli/", {
+            waitUntil: 'domcontentloaded', // Ensure page is loaded before interacting
+            timeout: 0 // Increase timeout if necessary
+        });
 
         const data = await page.evaluate(() => {
+            // Scraping logic remains the same...
             const courses = Array.from(document.querySelectorAll(".courses li")).map(course => {
                 const courseName = course.querySelector("h3") ? course.querySelector("h3").textContent.trim() : '';
                 const courseCode = course.querySelector("h4") ? course.querySelector("h4").textContent.trim() : '';
@@ -112,16 +112,17 @@ const scrapeLogic = async (res) => {
             });
 
             return { courses, languages, projects, educations, experiences };
-        })
-        res.send(data)
-        console.log(data)
+        });
+
+        res.status(200).send(data);  // Send response with status 200 (success)
+        console.log(data);
 
     } catch (error) {
-        console.log('scrape failed', error)
-        res.send('scrape failed', error)
+        console.log('Scrape failed', error);
+        res.status(500).send('Scrape failed due to an error.');  // Send response with status 500 (error)
     } finally {
-        await browser.close()
+        await browser.close();
     }
-}
+};
 
-module.exports = { scrapeLogic }
+module.exports = { scrapeLogic };

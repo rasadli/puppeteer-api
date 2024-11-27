@@ -7,9 +7,12 @@ const scrapeLogic = async (res) => {
             "--disable-setuid-sandbox",
             "--no-sandbox",
             "--single-process",
-            "--no-zygote"
+            "--no-zygote",
         ],
-        executablePath: "/usr/bin/google-chrome-browser"
+        executablePath:
+            process.env.NODE_ENV === "production"
+                ? process.env.PUPPETEER_EXECUTABLE_PATH
+                : puppeteer.executablePath(),
     });
     try {
         const page = await browser.newPage();
